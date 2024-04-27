@@ -1,33 +1,33 @@
-"use client";
+import { prisma } from "@/prisma/client";
 import { Container, Flex, Grid } from "@radix-ui/themes";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { redirect } from "next/navigation";
+import bcrypt from "bcrypt";
 
-const Signup = () => {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [password, setPassword] = useState("");
+export default async function Signup() {
+  const onSubmit = async (formData: FormData) => {
+    "use server";
+    // const { name, email, phone, companyName, password } = formData;
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const phone = formData.get("phone");
+    const companyName = formData.get("company");
+    const password = formData.get("password");
 
-  const onSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/api/register", {
-        name,
-        email,
-        phone,
-        companyName,
-        password,
-      });
-      if (res) router.push("/api/auth/signin");
-    } catch (error) {
-      console.log(error);
-    }
+    const hashedPassword = await bcrypt.hash(password as string, 10);
+
+    await prisma.user.create({
+      data: {
+        name: name as string,
+        email: email as string,
+        phone: phone as string,
+        companyName: companyName as string,
+        password: hashedPassword,
+      },
+    });
+
+    redirect("/api/auth/signin");
   };
   return (
     <Container>
@@ -39,7 +39,7 @@ const Signup = () => {
           <div className="flex flex-col items-center">
             <p className="text-[#1C4596] font-bold text-[28px]">Get Started</p>
           </div>
-          <form className="mt-5" onSubmit={onSubmit}>
+          <form className="mt-5" action={onSubmit}>
             <div className="mb-4">
               <label
                 className="block text-[#292929] text-sm font-bold text-[14px] mb-2"
@@ -50,9 +50,10 @@ const Signup = () => {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="name"
+                name="name"
                 type="text"
                 placeholder="Name"
-                onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
             <div className="mb-4">
@@ -65,9 +66,10 @@ const Signup = () => {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="email"
+                name="email"
                 type="text"
                 placeholder="Email"
-                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
             <div className="mb-4">
@@ -80,9 +82,10 @@ const Signup = () => {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="phone"
+                name="phone"
                 type="number"
                 placeholder="Phone Number"
-                onChange={(e) => setPhone(e.target.value)}
+                required
               />
             </div>
             <div className="mb-4">
@@ -95,9 +98,10 @@ const Signup = () => {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="company"
+                name="company"
                 type="text"
                 placeholder="Company"
-                onChange={(e) => setCompanyName(e.target.value)}
+                required
               />
             </div>
             <div className="mb-4">
@@ -110,9 +114,10 @@ const Signup = () => {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="password"
+                name="password"
                 type="password"
                 placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
             <button
@@ -140,6 +145,4 @@ const Signup = () => {
       </Grid>
     </Container>
   );
-};
-
-export default Signup;
+}

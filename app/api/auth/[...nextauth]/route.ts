@@ -14,7 +14,7 @@ declare module "next-auth" {
   }
 }
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -50,8 +50,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
-};
-
-const handler = NextAuth(authOptions);
+});
 
 export { handler as GET, handler as POST };
