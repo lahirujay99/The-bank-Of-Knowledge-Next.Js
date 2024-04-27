@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ReactHTMLElement, useState } from "react";
 import DeleteUserBtn from "./DeleteUserBtn";
+import { revalidatePath } from "next/cache";
 
 const UserAccount = () => {
   const router = useRouter();
@@ -51,7 +52,7 @@ const UserAccount = () => {
       });
       console.log("mama awa 3");
       setIsDisabled(!isDisabled);
-      signOut();
+      revalidatePath("/user/account");
       console.log("mama awa 4");
     } catch (error) {
       console.log(error);
